@@ -232,7 +232,7 @@ def buscar_fotos_magica(evento_id: str, authorization: str = Header(None)):
         if not known_encodings: break
         
         # Tolerância relaxada para 0.65 devido às luzes de palco (teatro)
-        resultados = compare_faces(known_encodings, np.array(vetor_angulo), tolerance=0.65)
+        resultados = compare_faces(known_encodings, np.array(vetor_angulo), tolerance=0.55)
         for i, match in enumerate(resultados):
             if match and lista_fotos[i] not in fotos_encontradas:
                 fotos_encontradas.append(lista_fotos[i])
