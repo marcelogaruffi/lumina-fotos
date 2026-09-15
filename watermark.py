@@ -3,7 +3,7 @@ import os
 
 def apply_watermark(input_image_path: str, output_image_path: str, text: str = "PAULA CALDAS FOTOGRAFIA"):
     """
-    Abre uma imagem, adiciona uma marca d'água enorme na horizontal e nas diagonais,
+    Abre uma imagem, adiciona uma marca de seguranca gigante na horizontal e nas diagonais,
     e salva o resultado no caminho de destino.
     """
     try:
@@ -65,4 +65,4 @@ def apply_watermark(input_image_path: str, output_image_path: str, text: str = "
         return False
 
 if __name__ == "__main__":
-    print("O script de marca d'agua está pronto para ser importado pela API.")
+    print("O script de marca d'agua esta pronto para ser importado pela API.")
