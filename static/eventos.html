@@ -102,7 +102,7 @@
         <img id="lightbox-cliente-img" src="" class="max-h-[90vh] max-w-[90vw] object-contain rounded-lg shadow-2xl transition-transform">
         <button onclick="mudarFotoCliente(1)" class="absolute right-4 md:right-12 top-1/2 -translate-y-1/2 text-white text-5xl hover:text-[#C48B5D] transition drop-shadow-lg">&#10095;</button>
         <button onclick="toggleCartLightbox()" id="lightbox-cart-btn" class="absolute bottom-8 left-1/2 -translate-x-1/2 px-8 py-3 bg-white text-[#C48B5D] font-bold rounded-full shadow-xl hover:scale-105 transition flex items-center gap-2">
-            ?? Adicionar
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 00-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 00-16.536-1.84M7.5 14.25L5.106 5.272M6 20.25a.75.75 0 11-1.5 0 .75.75 0 011.5 0zm12.75 0a.75.75 0 11-1.5 0 .75.75 0 011.5 0z" /></svg> Adicionar
         </button>
     </div>
 
@@ -172,7 +172,7 @@
             const grid = document.getElementById("grid-fotos");
             if (fotos.length > 0) {
                 grid.innerHTML = fotos.map((f, index) => {
-                    const noCarrinho = carrinho.find(c => c.id === f.id);
+                    const noCarrinho = carrinh-find(c => c.id === f.id);
                     return `
                         <div class="relative group bg-white rounded-xl overflow-hidden border shadow-sm hover:shadow-md transition cursor-pointer" onclick="abrirLightboxCliente(${index})">
                             <img src="${f.url_marcada}" class="w-full h-48 object-cover">
@@ -189,13 +189,13 @@
         }
 
         function toggleCarrinhoCliente(id, url) {
-            const idx = carrinho.findIndex(c => c.id === id);
+            const idx = carrinh-findIndex(c => c.id === id);
             if (idx > -1) {
-                carrinho.splice(idx, 1);
+                carrinh-splice(idx, 1);
             } else {
-                carrinho.push({id, url, preco: 15});
+                carrinh-push({id, url, preco: 15});
             }
-            document.getElementById("cart-count").innerText = carrinho.length;
+            document.getElementById("cart-count").innerText = carrinh-length;
             renderizarGradeCliente(fotosGaleriaCliente);
         }
 
@@ -223,7 +223,7 @@
             document.getElementById('lightbox-cliente-img').src = f.url_marcada;
             
             const btn = document.getElementById('lightbox-cart-btn');
-            const noCarrinho = carrinho.find(c => c.id === f.id);
+            const noCarrinho = carrinh-find(c => c.id === f.id);
             if (noCarrinho) {
                 btn.className = "absolute bottom-8 bg-green-500 text-white px-8 py-3 rounded-full font-bold shadow-lg transition flex items-center gap-2";
                 btn.innerHTML = "✅ Selecionada (Remover)";
@@ -279,7 +279,7 @@
             document.getElementById("lista-eventos").classList.add("hidden");
             document.getElementById("galeria").classList.remove("hidden");
             document.getElementById("titulo-galeria").innerText = nome;
-            document.getElementById("grid-fotos").innerHTML = "<p class='col-span-4 text-gray-500'>Carregando galeria do evento...</p>";
+            document.getElementById("grid-fotos").innerHTML = "<p class='col-span-4 text-gray-500'>Carregando galeria do event-..</p>";
             document.getElementById("status-busca").innerText = "";
             
             // Buscar todas as fotos
@@ -348,22 +348,22 @@
         }
 
         // CARRINHO BASE
-        function adicionarAoCarrinho(id, url) { if(!carrinho.find(f=>f.id===id)){ carrinho.push({id,url,preco:15}); document.getElementById("cart-count").innerText = carrinho.length; }}
+        function adicionarAoCarrinho(id, url) { if(!carrinh-find(f=>f.id===id)){ carrinh-push({id,url,preco:15}); document.getElementById("cart-count").innerText = carrinh-length; }}
         function abrirCarrinho() { 
             const div = document.getElementById("itens-carrinho");
-            if(carrinho.length===0) { div.innerHTML="<p>Vazio</p>"; document.getElementById("total-carrinho").innerText="R$ 0,00"; }
+            if(carrinh-length===0) { div.innerHTML="<p>Vazio</p>"; document.getElementById("total-carrinho").innerText="R$ 0,00"; }
             else {
-                div.innerHTML = carrinho.map(f=>`<div class="flex justify-between p-4 bg-gray-50 rounded border items-center"><img src="${f.url}" class="w-16 h-16 rounded object-cover"><span class="font-bold">R$15</span><button onclick="removerDoCarrinho('${f.id}')" class="text-red-500 font-bold">×</button></div>`).join('');
-                document.getElementById("total-carrinho").innerText = `R$ ${(carrinho.length*15).toFixed(2)}`;
+                div.innerHTML = carrinh-map(f=>`<div class="flex justify-between p-4 bg-gray-50 rounded border items-center"><img src="${f.url}" class="w-16 h-16 rounded object-cover"><span class="font-bold">R$15</span><button onclick="removerDoCarrinho('${f.id}')" class="text-red-500 font-bold">×</button></div>`).join('');
+                document.getElementById("total-carrinho").innerText = `R$ ${(carrinh-length*15).toFixed(2)}`;
             }
             document.getElementById("modal-carrinho").classList.remove("hidden");
         }
-        function removerDoCarrinho(id) { carrinho = carrinho.filter(f=>f.id!==id); document.getElementById("cart-count").innerText = carrinho.length; abrirCarrinho(); }
+        function removerDoCarrinho(id) { carrinho = carrinh-filter(f=>f.id!==id); document.getElementById("cart-count").innerText = carrinh-length; abrirCarrinho(); }
         function fecharCarrinho() { document.getElementById("modal-carrinho").classList.add("hidden"); }
         async function finalizarPedido() {
-            if(carrinho.length===0) return;
+            if(carrinh-length===0) return;
             try {
-                await fetch("/api/cliente/pedido", { method: "POST", headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` }, body: JSON.stringify({fotos_ids: carrinho.map(c=>c.id), total: carrinho.length*15}) });
+                await fetch("/api/cliente/pedido", { method: "POST", headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` }, body: JSON.stringify({fotos_ids: carrinh-map(c=>c.id), total: carrinh-length*15}) });
                 carrinho = []; document.getElementById("cart-count").innerText = "0"; fecharCarrinho();
                 alert("Pedido Enviado! Vá na aba Minhas Compras.");
                 mudarAba('compras');
