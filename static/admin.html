@@ -364,11 +364,16 @@
                 formData.append("evento_id", eventoAtivo);
                 formData.append("foto", arquivos[i]);
                 status.innerText = `⏳ Extraindo IA: ${i+1} de ${arquivos.length}...`;
-                await fetch("/admin/upload-foto", { 
+                const res = await fetch("/admin/upload-foto", { 
                     method: "POST", 
                     headers: { "Authorization": "Bearer " + adminToken },
                     body: formData 
                 });
+                if (!res.ok) {
+                    const err = await res.json();
+                    alert(`Erro na foto ${i+1}: ${err.detail || 'Falha no processamento'}`);
+                    break;
+                }
             }
             status.innerText = "✅ Upload concluído!";
             setTimeout(() => { status.innerText = ""; }, 3000);
