@@ -1,4 +1,4 @@
-from fastapi import FastAPI, File, UploadFile, Form, HTTPException, Depends
+from fastapi import FastAPI, Request, File, UploadFile, Form, HTTPException, Depends
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 from typing import List, Optional
@@ -142,24 +142,44 @@ def verificar_token_admin(authorization: str = Header(None)):
         raise HTTPException(status_code=401, detail="Token admin invalido")
 
 @app.post("/api/auth/admin-login")
-def admin_login(email: str = Form(...), senha: str = Form(...)):
+async def admin_login(request: Request, email: str = Form(...), senha: str = Form(...)):
     res = supabase.table("admins").select("*").eq("email", email).execute()
     if not res.data: return {"sucesso": False, "erro": "Credenciais invalidas"}
     admin = res.data[0]
     if admin["senha"] != senha:
         return {"sucesso": False, "erro": "Credenciais invalidas"}
         
+    
     token = jwt.encode({"sub": admin["id"], "role": "admin", "exp": datetime.utcnow() + timedelta(hours=12)}, SECRET_KEY, algorithm=ALGORITHM)
+    
+    # Log IP
+    ip = request.headers.get("X-Forwarded-For", request.client.host)
+    if ip and "," in ip: ip = ip.split(",")[0]
+    try:
+        supabase.table("login_logs").insert({"email": email, "tipo": "Admin", "ip": ip}).execute()
+    except: pass
+    
     return {"sucesso": True, "token": token}
 
+
 @app.post("/api/auth/login")
-async def login(email: str = Form(...), senha: str = Form(...)):
+async def login(request: Request, email: str = Form(...), senha: str = Form(...)):
     senha_hasheada = hash_senha(senha)
     res = supabase.table("clientes").select("id").eq("email", email).eq("senha_hash", senha_hasheada).execute()
     
     if res.data and len(res.data) > 0:
+        
         token = gerar_token(res.data[0]["id"])
+        
+        # Log IP
+        ip = request.headers.get("X-Forwarded-For", request.client.host)
+        if ip and "," in ip: ip = ip.split(",")[0]
+        try:
+            supabase.table("login_logs").insert({"email": email, "tipo": "Cliente", "ip": ip}).execute()
+        except: pass
+        
         return {"sucesso": True, "token": token}
+
     return {"sucesso": False, "erro": "Usuário ou senha incorretos."}
 
 
@@ -451,5 +471,14 @@ def deletar_evento_admin(evento_id: str, authorization: str = Header(None)):
     try:
         supabase.table("eventos").delete().eq("id", evento_id).execute()
         return {"sucesso": True}
+    except Exception as e:
+        return {"sucesso": False, "erro": str(e)}
+
+@app.get("/api/admin/logs")
+def listar_logs_admin(authorization: str = Header(None)):
+    verificar_token_admin(authorization)
+    try:
+        res = supabase.table("login_logs").select("*").order("criado_em", desc=True).limit(100).execute()
+        return {"sucesso": True, "logs": res.data}
     except Exception as e:
         return {"sucesso": False, "erro": str(e)}

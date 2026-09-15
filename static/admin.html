@@ -3,7 +3,30 @@
 <head>
     <meta charset="UTF-8">
     <title>Lumina | Admin</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.tailwindcss.com">
+        async function carregarLogs() {
+            try {
+                const res = await fetch("/api/admin/logs", { headers: { "Authorization": "Bearer " + adminToken }});
+                const data = await res.json();
+                const tbody = document.getElementById("tabela-logs");
+                if (data.sucesso && data.logs && data.logs.length > 0) {
+                    tbody.innerHTML = data.logs.map(log => `
+                        <tr class="hover:bg-gray-50 transition">
+                            <td class="p-4">${new Date(log.criado_em).toLocaleString('pt-BR')}</td>
+                            <td class="p-4"><span class="px-2 py-1 rounded text-xs font-bold ${log.tipo === 'Admin' ? 'bg-purple-100 text-purple-700' : 'bg-blue-100 text-blue-700'}">${log.tipo}</span></td>
+                            <td class="p-4 text-gray-600">${log.email || '-'}</td>
+                            <td class="p-4 font-mono text-xs text-gray-500">${log.ip || 'Desconhecido'}</td>
+                        </tr>
+                    `).join('');
+                } else {
+                    tbody.innerHTML = `<tr><td colspan="4" class="p-4 text-center text-gray-400">Nenhum acesso registrado ainda.</td></tr>`;
+                }
+            } catch(e) {
+                document.getElementById("tabela-logs").innerHTML = `<tr><td colspan="4" class="p-4 text-center text-red-500">Erro ao carregar logs.</td></tr>`;
+            }
+        }
+
+</script>
     <link rel="stylesheet" href="/site/css/style.css">
 </head>
 <body class="bg-[#F8F7F3] text-[#2C2C2C] font-['Inter'] overflow-hidden">
@@ -29,6 +52,10 @@
                 <button onclick="mudarAba('pedidos')" id="btn-pedidos" class="w-full flex items-center gap-4 px-4 py-3 text-gray-500 hover:bg-gray-50 hover:text-[#C48B5D] font-medium rounded-lg transition menu-btn whitespace-nowrap">
                     <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
                     <span class="menu-text">Pedidos & Vendas</span>
+                </button>
+                            <button onclick="mudarAba('logs')" id="btn-logs" class="w-full flex items-center gap-4 px-4 py-3 text-gray-500 hover:bg-gray-50 hover:text-[#C48B5D] font-medium rounded-lg transition menu-btn whitespace-nowrap">
+                    <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    <span class="menu-text">Registros (Logs)</span>
                 </button>
             </nav>
             <div class="p-4 border-t border-[#EBEBEB] overflow-hidden">
@@ -102,6 +129,28 @@
                 <div id="aba_pedidos" class="aba-conteudo hidden">
                     <h3 class="font-serif text-2xl text-[#2C2C2C] mb-6">Pedidos Recebidos</h3>
                     <div id="lista_pedidos_cards" class="space-y-4"></div>
+                </div>
+                <!-- Aba: Logs -->
+                <div id="aba_logs" class="aba-conteudo hidden">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="font-serif text-2xl text-[#2C2C2C]">Registros de Acesso</h3>
+                        <button onclick="carregarLogs()" class="text-sm bg-gray-100 hover:bg-gray-200 text-gray-600 px-4 py-2 rounded-lg transition">Atualizar</button>
+                    </div>
+                    <div class="bg-white rounded-xl shadow-sm border border-[#EBEBEB] overflow-hidden">
+                        <table class="w-full text-left">
+                            <thead class="bg-gray-50 border-b border-gray-100 text-gray-500 text-sm">
+                                <tr>
+                                    <th class="p-4 font-medium">Data / Hora</th>
+                                    <th class="p-4 font-medium">Tipo</th>
+                                    <th class="p-4 font-medium">Conta</th>
+                                    <th class="p-4 font-medium">IP</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tabela-logs" class="divide-y divide-gray-100 text-sm">
+                                <tr><td colspan="4" class="p-4 text-center text-gray-400">Carregando registros...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </main>
@@ -223,6 +272,7 @@
             if(nomeAba === 'eventos') voltarListaEventos();
             if(nomeAba === 'clientes') carregarClientes();
             if(nomeAba === 'pedidos') carregarPedidos();
+            if(nomeAba === 'logs') carregarLogs();
         }
 
         // CARREGAR EVENTOS (CARDS)
@@ -427,6 +477,29 @@
                 }
             } catch(e) {}
         }
-    </script>
+    
+        async function carregarLogs() {
+            try {
+                const res = await fetch("/api/admin/logs", { headers: { "Authorization": "Bearer " + adminToken }});
+                const data = await res.json();
+                const tbody = document.getElementById("tabela-logs");
+                if (data.sucesso && data.logs && data.logs.length > 0) {
+                    tbody.innerHTML = data.logs.map(log => `
+                        <tr class="hover:bg-gray-50 transition">
+                            <td class="p-4">${new Date(log.criado_em).toLocaleString('pt-BR')}</td>
+                            <td class="p-4"><span class="px-2 py-1 rounded text-xs font-bold ${log.tipo === 'Admin' ? 'bg-purple-100 text-purple-700' : 'bg-blue-100 text-blue-700'}">${log.tipo}</span></td>
+                            <td class="p-4 text-gray-600">${log.email || '-'}</td>
+                            <td class="p-4 font-mono text-xs text-gray-500">${log.ip || 'Desconhecido'}</td>
+                        </tr>
+                    `).join('');
+                } else {
+                    tbody.innerHTML = `<tr><td colspan="4" class="p-4 text-center text-gray-400">Nenhum acesso registrado ainda.</td></tr>`;
+                }
+            } catch(e) {
+                document.getElementById("tabela-logs").innerHTML = `<tr><td colspan="4" class="p-4 text-center text-red-500">Erro ao carregar logs.</td></tr>`;
+            }
+        }
+
+</script>
 </body>
 </html>
