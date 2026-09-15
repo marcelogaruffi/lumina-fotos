@@ -178,7 +178,7 @@
                             <img src="${f.url_marcada}" class="w-full h-48 object-cover">
                             <button id="btn-cart-${f.id}" onclick="event.stopPropagation(); toggleCarrinhoCliente('${f.id}', '${f.url_marcada}')" 
                                 class="absolute top-2 right-2 p-3 rounded-full shadow-md transition ${noCarrinho ? 'bg-green-500 text-white' : 'bg-white text-gray-400 hover:text-gray-700'}">
-                                ${noCarrinho ? '✅' : '🛒'}
+                                ${noCarrinho ? '?' : '+'}
                             </button>
                         </div>
                     `;
@@ -191,7 +191,7 @@
         function toggleCarrinhoCliente(id, url) {
             const idx = carrinho.findIndex(c => c.id === id);
             if (idx > -1) {
-                carrinh-splice(idx, 1);
+                carrinho.splice(idx, 1);
             } else {
                 carrinho.push({id, url, preco: 15});
             }
