@@ -172,7 +172,7 @@
             const grid = document.getElementById("grid-fotos");
             if (fotos.length > 0) {
                 grid.innerHTML = fotos.map((f, index) => {
-                    const noCarrinho = carrinh-find(c => c.id === f.id);
+                    const noCarrinho = carrinho.find(c => c.id === f.id);
                     return `
                         <div class="relative group bg-white rounded-xl overflow-hidden border shadow-sm hover:shadow-md transition cursor-pointer" onclick="abrirLightboxCliente(${index})">
                             <img src="${f.url_marcada}" class="w-full h-48 object-cover">
@@ -189,13 +189,13 @@
         }
 
         function toggleCarrinhoCliente(id, url) {
-            const idx = carrinh-findIndex(c => c.id === id);
+            const idx = carrinho.findIndex(c => c.id === id);
             if (idx > -1) {
                 carrinh-splice(idx, 1);
             } else {
-                carrinh-push({id, url, preco: 15});
+                carrinho.push({id, url, preco: 15});
             }
-            document.getElementById("cart-count").innerText = carrinh-length;
+            document.getElementById("cart-count").innerText = carrinho.length;
             renderizarGradeCliente(fotosGaleriaCliente);
         }
 
@@ -223,7 +223,7 @@
             document.getElementById('lightbox-cliente-img').src = f.url_marcada;
             
             const btn = document.getElementById('lightbox-cart-btn');
-            const noCarrinho = carrinh-find(c => c.id === f.id);
+            const noCarrinho = carrinho.find(c => c.id === f.id);
             if (noCarrinho) {
                 btn.className = "absolute bottom-8 bg-green-500 text-white px-8 py-3 rounded-full font-bold shadow-lg transition flex items-center gap-2";
                 btn.innerHTML = "✅ Selecionada (Remover)";
@@ -279,7 +279,7 @@
             document.getElementById("lista-eventos").classList.add("hidden");
             document.getElementById("galeria").classList.remove("hidden");
             document.getElementById("titulo-galeria").innerText = nome;
-            document.getElementById("grid-fotos").innerHTML = "<p class='col-span-4 text-gray-500'>Carregando galeria do event-..</p>";
+            document.getElementById("grid-fotos").innerHTML = "<p class='col-span-4 text-gray-500'>Carregando galeria do evento...</p>";
             document.getElementById("status-busca").innerText = "";
             
             // Buscar todas as fotos
@@ -348,22 +348,22 @@
         }
 
         // CARRINHO BASE
-        function adicionarAoCarrinho(id, url) { if(!carrinh-find(f=>f.id===id)){ carrinh-push({id,url,preco:15}); document.getElementById("cart-count").innerText = carrinh-length; }}
+        function adicionarAoCarrinho(id, url) { if(!carrinho.find(f=>f.id===id)){ carrinho.push({id,url,preco:15}); document.getElementById("cart-count").innerText = carrinho.length; }}
         function abrirCarrinho() { 
             const div = document.getElementById("itens-carrinho");
-            if(carrinh-length===0) { div.innerHTML="<p>Vazio</p>"; document.getElementById("total-carrinho").innerText="R$ 0,00"; }
+            if(carrinho.length===0) { div.innerHTML="<p>Vazio</p>"; document.getElementById("total-carrinho").innerText="R$ 0,00"; }
             else {
-                div.innerHTML = carrinh-map(f=>`<div class="flex justify-between p-4 bg-gray-50 rounded border items-center"><img src="${f.url}" class="w-16 h-16 rounded object-cover"><span class="font-bold">R$15</span><button onclick="removerDoCarrinho('${f.id}')" class="text-red-500 font-bold">×</button></div>`).join('');
-                document.getElementById("total-carrinho").innerText = `R$ ${(carrinh-length*15).toFixed(2)}`;
+                div.innerHTML = carrinho.map(f=>`<div class="flex justify-between p-4 bg-gray-50 rounded border items-center"><img src="${f.url}" class="w-16 h-16 rounded object-cover"><span class="font-bold">R$15</span><button onclick="removerDoCarrinho('${f.id}')" class="text-red-500 font-bold">×</button></div>`).join('');
+                document.getElementById("total-carrinho").innerText = `R$ ${(carrinho.length*15).toFixed(2)}`;
             }
             document.getElementById("modal-carrinho").classList.remove("hidden");
         }
-        function removerDoCarrinho(id) { carrinho = carrinh-filter(f=>f.id!==id); document.getElementById("cart-count").innerText = carrinh-length; abrirCarrinho(); }
+        function removerDoCarrinho(id) { carrinho = carrinho.filter(f=>f.id!==id); document.getElementById("cart-count").innerText = carrinho.length; abrirCarrinho(); }
         function fecharCarrinho() { document.getElementById("modal-carrinho").classList.add("hidden"); }
         async function finalizarPedido() {
-            if(carrinh-length===0) return;
+            if(carrinho.length===0) return;
             try {
-                await fetch("/api/cliente/pedido", { method: "POST", headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` }, body: JSON.stringify({fotos_ids: carrinh-map(c=>c.id), total: carrinh-length*15}) });
+                await fetch("/api/cliente/pedido", { method: "POST", headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` }, body: JSON.stringify({fotos_ids: carrinho.map(c=>c.id), total: carrinho.length*15}) });
                 carrinho = []; document.getElementById("cart-count").innerText = "0"; fecharCarrinho();
                 alert("Pedido Enviado! Vá na aba Minhas Compras.");
                 mudarAba('compras');
