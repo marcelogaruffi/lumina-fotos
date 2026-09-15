@@ -335,26 +335,35 @@ async def criar_evento_admin(nome: str = Form(...), data: str = Form(...), autho
         print(f"Erro ao criar evento: {e}")
         return {"sucesso": False, "erro": "Falha ao registrar o evento no sistema. (Cód: ERR-EVT-01)"}
 
-def process_and_upload_photo(evento_id: str, temp_path: str, filename: str):
-    """Fila indiana: Processa IA e sobe para o banco (Síncrono para evitar deadlocks)"""
-    watermark_path = f"temp/watermarked_{filename}"
+import uuid
+
+def process_and_upload_photo(evento_id: str, temp_path: str, original_filename: str):
+    """Fila indiana: Processa IA e sobe para o banco (Sincrono para evitar deadlocks)"""
+    
+    # Gerar um nome de arquivo unico para evitar conflitos no Supabase
+    ext = original_filename.split('.')[-1].lower()
+    if ext not in ['jpg', 'jpeg', 'png']: ext = 'jpg'
+    unique_filename = f"{uuid.uuid4().hex}.{ext}"
+    watermark_path = f"temp/wm_{unique_filename}"
     
     try:
-        # 1. Aplicar Marca d'Água
-        apply_watermark(temp_path, watermark_path)
+        # 1. Aplicar Marca d'Agua
+        sucesso_wm = apply_watermark(temp_path, watermark_path)
+        if not sucesso_wm or not os.path.exists(watermark_path):
+            raise Exception("Falha ao gerar a marca d'agua. O arquivo de imagem pode estar corrompido ou num formato invalido.")
         
         # 2. Extrair IA
         vector = extract_face_encoding(temp_path)
         
         # 3. Upload Original (Sem expor)
         with open(temp_path, "rb") as f:
-            supabase.storage.from_("fotos-originais").upload(f"eventos/{evento_id}/{filename}", f, file_options={"content-type": "image/jpeg"})
-        url_original = supabase.storage.from_("fotos-originais").get_public_url(f"eventos/{evento_id}/{filename}")
+            supabase.storage.from_("fotos-originais").upload(f"eventos/{evento_id}/{unique_filename}", f, file_options={"content-type": f"image/{ext}", "upsert": "true"})
+        url_original = supabase.storage.from_("fotos-originais").get_public_url(f"eventos/{evento_id}/{unique_filename}")
         
-        # 4. Upload com Marca (Pública)
+        # 4. Upload com Marca (Publica)
         with open(watermark_path, "rb") as f:
-            supabase.storage.from_("fotos-marcadas").upload(f"eventos/{evento_id}/wm_{filename}", f, file_options={"content-type": "image/jpeg"})
-        url_marcada = supabase.storage.from_("fotos-marcadas").get_public_url(f"eventos/{evento_id}/wm_{filename}")
+            supabase.storage.from_("fotos-marcadas").upload(f"eventos/{evento_id}/wm_{unique_filename}", f, file_options={"content-type": f"image/{ext}", "upsert": "true"})
+        url_marcada = supabase.storage.from_("fotos-marcadas").get_public_url(f"eventos/{evento_id}/wm_{unique_filename}")
         
         # 5. Salvar no Banco
         data = {
@@ -365,13 +374,16 @@ def process_and_upload_photo(evento_id: str, temp_path: str, filename: str):
             "preco": 15.00
         }
         supabase.table("fotos").insert(data).execute()
+        return {"sucesso": True}
         
     except Exception as e:
-        print(f"Erro no processamento da foto {filename}: {e}")
+        print(f"Erro no processamento da foto {original_filename}: {e}")
+        return {"sucesso": False, "erro": str(e)}
     finally:
         # Limpar lixo
         if os.path.exists(temp_path): os.remove(temp_path)
         if os.path.exists(watermark_path): os.remove(watermark_path)
+
 
 @app.get("/api/admin/clientes")
 def listar_clientes_admin(authorization: str = Header(None)):
@@ -391,8 +403,10 @@ async def upload_foto(evento_id: str = Form(...), foto: UploadFile = File(...)):
     with open(temp_path, "wb") as f:
         shutil.copyfileobj(foto.file, f)
     
-    process_and_upload_photo(evento_id, temp_path, foto.filename)
-    return {"mensagem": f"Foto processada com sucesso!"}
+    res = process_and_upload_photo(evento_id, temp_path, foto.filename)
+    if not res.get("sucesso"):
+        raise HTTPException(status_code=500, detail=res.get("erro", "Erro desconhecido ao processar foto"))
+    return {"sucesso": True, "mensagem": f"Foto processada com sucesso!"}
 
 
 @app.get("/api/admin/eventos/{evento_id}/fotos")
