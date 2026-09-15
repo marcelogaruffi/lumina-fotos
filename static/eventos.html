@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Lumina | Cliente</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="/site/css/style.css">
+</head>
+<body class="bg-[#F8F7F3] text-[#2C2C2C] font-['Inter'] overflow-hidden">
+    <div class="flex h-screen">
+        <!-- Sidebar -->
+        <aside id="sidebar" class="w-64 bg-white border-r border-[#EBEBEB] flex flex-col relative z-30 transition-all duration-300">
+            <button onclick="toggleSidebar()" id="sidebar-arrow" class="absolute -right-3 top-8 bg-white border border-[#EBEBEB] rounded-full p-1.5 shadow-md text-gray-400 hover:text-[#C48B5D] z-40 transition-transform">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+            </button>
+            <div class="h-20 flex items-center px-6 border-b border-[#EBEBEB] overflow-hidden">
+                <h1 class="font-serif text-2xl font-bold tracking-wider text-[#C48B5D] whitespace-nowrap">LUMINA</h1>
+            </div>
+            
+            <nav class="flex-1 px-4 py-6 space-y-2 overflow-hidden">
+                <button onclick="mudarAba('colecoes')" id="btn-colecoes" class="w-full flex items-center gap-4 px-4 py-3 bg-[#F4EBE3] text-[#C48B5D] font-bold rounded-lg transition menu-btn whitespace-nowrap">
+                    <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                    <span class="menu-text">Explorar Coleções</span>
+                </button>
+                <button onclick="mudarAba('compras')" id="btn-compras" class="w-full flex items-center gap-4 px-4 py-3 text-gray-500 hover:bg-gray-50 hover:text-[#C48B5D] font-medium rounded-lg transition menu-btn whitespace-nowrap">
+                    <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
+                    <span class="menu-text">Minhas Compras</span>
+                </button>
+                <button onclick="abrirCarrinho()" class="w-full flex items-center gap-4 px-4 py-3 text-gray-500 hover:bg-gray-50 hover:text-[#C48B5D] font-medium rounded-lg transition whitespace-nowrap">
+                    <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+                    <span class="menu-text">Carrinho (<span id="cart-count">0</span>)</span>
+                </button>
+                <button onclick="window.location.href='/site/perfil.html'" class="w-full flex items-center gap-4 px-4 py-3 text-gray-500 hover:bg-gray-50 hover:text-[#C48B5D] font-medium rounded-lg transition whitespace-nowrap">
+                    <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+                    <span class="menu-text">Meu Perfil</span>
+                </button>
+            </nav>
+            <div class="p-4 border-t border-[#EBEBEB] overflow-hidden">
+                <button onclick="sair()" class="w-full flex items-center gap-4 px-4 py-2 text-gray-400 hover:text-red-500 transition whitespace-nowrap">
+                    <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+                    <span class="menu-text">Sair</span>
+                </button>
+            </div>
+        </aside>
+
+        <main class="flex-1 flex flex-col h-screen overflow-hidden">
+            <header class="bg-white border-b border-[#EBEBEB] h-20 flex items-center justify-between px-8 shrink-0 shadow-sm">
+                <h2 id="header-titulo" class="text-2xl font-serif text-[#2C2C2C]">Suas Coleções</h2>
+                <div class="text-right">
+                    <p class="text-sm font-bold text-[#C48B5D] border border-[#C48B5D] px-3 py-1 rounded-full bg-[#F4EBE3]">Acesso VIP</p>
+                </div>
+            </header>
+
+            <div class="flex-1 overflow-y-auto p-8">
+                <!-- ABA: COLEÇÕES (Galeria de Busca Mágica) -->
+                <div id="aba_colecoes" class="aba-conteudo block">
+                    <div id="lista-eventos" class="grid grid-cols-1 md:grid-cols-3 gap-6"></div>
+                    
+                    <div id="galeria" class="hidden">
+                        <button onclick="voltarParaEventos()" class="text-[#C48B5D] font-bold text-sm mb-6 flex items-center gap-2 hover:text-[#B07A4F]">← Voltar para Coleções</button>
+                        <div class="flex justify-between items-center bg-white p-6 rounded-xl border border-[#EBEBEB] shadow-sm mb-8">
+                            <div>
+                                <h2 id="titulo-galeria" class="text-3xl font-serif font-bold text-[#2C2C2C]"></h2>
+                                <p class="text-sm text-gray-500 mt-1">Busque seu rosto nesta galeria usando a biometria cadastrada.</p>
+                            </div>
+                            <button onclick="realizarBuscaMagica()" class="py-3 px-8 bg-[#C48B5D] text-white rounded-lg font-bold shadow-md hover:bg-[#B07A4F] transition flex items-center gap-3 text-lg">✨ Busca Mágica (IA)</button>
+                        </div>
+                        <p id="status-busca" class="text-center font-bold mb-4 text-[#C48B5D]"></p>
+                        <div id="grid-fotos" class="grid grid-cols-2 md:grid-cols-4 gap-6"></div>
+                    </div>
+                </div>
+
+                <!-- ABA: MINHAS COMPRAS (Pedidos Concluídos) -->
+                <div id="aba_compras" class="aba-conteudo hidden space-y-6" id="lista-compras">
+                    <!-- Preenchido pelo JS -->
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modal Carrinho -->
+    <div id="modal-carrinho" class="fixed inset-0 bg-white/80 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-white w-full max-w-2xl p-8 rounded-2xl shadow-2xl border border-[#EBEBEB]">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-3xl font-serif">Seu Carrinho</h2>
+                <button onclick="fecharCarrinho()" class="text-gray-400 text-2xl hover:text-black">&times;</button>
+            </div>
+            <div id="itens-carrinho" class="space-y-4 mb-6 min-h-[100px]"></div>
+            <div class="border-t border-[#EBEBEB] pt-6 flex justify-between items-center">
+                <div><p class="text-sm text-gray-500 uppercase">Total</p><p class="text-4xl font-serif font-bold text-[#C48B5D]" id="total-carrinho">R$ 0,00</p></div>
+                <button onclick="finalizarPedido()" class="py-4 px-8 bg-[#2C2C2C] text-white rounded-lg font-bold text-lg shadow-lg hover:bg-black transition">Concluir Compra</button>
+            </div>
+            <p id="status-pedido" class="text-center mt-4 font-bold text-[#C48B5D]"></p>
+        </div>
+    </div>
+
+    <script>
+        const token = localStorage.getItem("token");
+        if (!token) window.location.href = "/site/login.html";
+
+        let sidebarOpen = true;
+        let carrinho = [];
+        let eventoAtivo = null;
+
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const arrow = document.getElementById('sidebar-arrow');
+            const texts = document.querySelectorAll('.menu-text');
+            sidebarOpen = !sidebarOpen;
+            if (sidebarOpen) {
+                sidebar.classList.remove('w-20'); sidebar.classList.add('w-64');
+                arrow.style.transform = "rotate(0deg)";
+                texts.forEach(t => t.classList.remove('hidden'));
+            } else {
+                sidebar.classList.remove('w-64'); sidebar.classList.add('w-20');
+                arrow.style.transform = "rotate(180deg)";
+                texts.forEach(t => t.classList.add('hidden'));
+            }
+        }
+
+        function mudarAba(nomeAba) {
+            document.querySelectorAll('.aba-conteudo').forEach(el => el.classList.add('hidden'));
+            document.getElementById('aba_' + nomeAba).classList.remove('hidden');
+            document.querySelectorAll('.menu-btn').forEach(btn => {
+                btn.className = "w-full flex items-center gap-4 px-4 py-3 text-gray-500 hover:bg-gray-50 hover:text-[#C48B5D] font-medium rounded-lg transition menu-btn whitespace-nowrap";
+            });
+            document.getElementById('btn-' + nomeAba).className = "w-full flex items-center gap-4 px-4 py-3 bg-[#F4EBE3] text-[#C48B5D] font-bold rounded-lg transition menu-btn whitespace-nowrap";
+            document.getElementById('header-titulo').innerText = nomeAba === 'colecoes' ? 'Suas Coleções' : 'Minhas Compras';
+            if(nomeAba === 'colecoes') carregarEventos();
+            if(nomeAba === 'compras') carregarCompras();
+        }
+
+        document.addEventListener("DOMContentLoaded", carregarEventos);
+
+        async function carregarEventos() {
+            try {
+                const res = await fetch("/api/cliente/eventos");
+                const data = await res.json();
+                const lista = document.getElementById("lista-eventos");
+                if (data.sucesso && data.eventos.length > 0) {
+                    lista.innerHTML = data.eventos.map(ev => `
+                        <div class="bg-white p-6 rounded-xl border border-[#EBEBEB] shadow-sm hover:shadow-lg transition cursor-pointer" onclick="abrirEvento('${ev.id}', '${ev.nome}')">
+                            <h3 class="text-2xl font-serif font-bold mb-2">${ev.nome}</h3>
+                            <p class="text-sm text-gray-500 mb-6">${new Date(ev.data).toLocaleDateString()}</p>
+                            <button class="w-full py-2 bg-gray-50 hover:bg-[#F4EBE3] text-[#C48B5D] font-bold rounded-lg transition">Explorar Galeria</button>
+                        </div>
+                    `).join('');
+                } else {
+                    lista.innerHTML = "<p>Nenhuma coleção disponível.</p>";
+                }
+            } catch (err) {}
+        }
+
+        
+        let fotosGaleriaCliente = [];
+        let fotoIndexCliente = 0;
+
+        function renderizarGradeCliente(fotos) {
+            fotosGaleriaCliente = fotos;
+            const grid = document.getElementById("grid-fotos");
+            if (fotos.length > 0) {
+                grid.innerHTML = fotos.map((f, index) => {
+                    const noCarrinho = carrinho.find(c => c.id === f.id);
+                    return `
+                        <div class="relative group bg-white rounded-xl overflow-hidden border shadow-sm hover:shadow-md transition cursor-pointer" onclick="abrirLightboxCliente(${index})">
+                            <img src="${f.url_marcada}" class="w-full h-48 object-cover">
+                            <button id="btn-cart-${f.id}" onclick="event.stopPropagation(); toggleCarrinhoCliente('${f.id}', '${f.url_marcada}')" 
+                                class="absolute top-2 right-2 p-3 rounded-full shadow-md transition ${noCarrinho ? 'bg-green-500 text-white' : 'bg-white text-gray-400 hover:text-gray-700'}">
+                                ${noCarrinho ? '✅' : '🛒'}
+                            </button>
+                        </div>
+                    `;
+                }).join('');
+            } else {
+                grid.innerHTML = "<p class='col-span-4 text-gray-500'>Nenhuma foto para exibir.</p>";
+            }
+        }
+
+        function toggleCarrinhoCliente(id, url) {
+            const idx = carrinho.findIndex(c => c.id === id);
+            if (idx > -1) {
+                carrinho.splice(idx, 1);
+            } else {
+                carrinho.push({id, url, preco: 15});
+            }
+            document.getElementById("cart-count").innerText = carrinho.length;
+            renderizarGradeCliente(fotosGaleriaCliente);
+        }
+
+        function abrirLightboxCliente(index) {
+            fotoIndexCliente = index;
+            document.getElementById('lightbox-cliente').classList.remove('hidden');
+            atualizarLightboxCliente();
+            document.addEventListener('keydown', tecladoLightboxCliente);
+        }
+        
+        function fecharLightboxCliente() {
+            document.getElementById('lightbox-cliente').classList.add('hidden');
+            document.removeEventListener('keydown', tecladoLightboxCliente);
+        }
+        
+        function mudarFotoCliente(dir) {
+            fotoIndexCliente += dir;
+            if (fotoIndexCliente < 0) fotoIndexCliente = fotosGaleriaCliente.length - 1;
+            if (fotoIndexCliente >= fotosGaleriaCliente.length) fotoIndexCliente = 0;
+            atualizarLightboxCliente();
+        }
+        
+        function atualizarLightboxCliente() {
+            const f = fotosGaleriaCliente[fotoIndexCliente];
+            document.getElementById('lightbox-cliente-img').src = f.url_marcada;
+            
+            const btn = document.getElementById('lightbox-cart-btn');
+            const noCarrinho = carrinho.find(c => c.id === f.id);
+            if (noCarrinho) {
+                btn.className = "absolute bottom-8 bg-green-500 text-white px-8 py-3 rounded-full font-bold shadow-lg transition flex items-center gap-2";
+                btn.innerHTML = "✅ Selecionada (Remover)";
+            } else {
+                btn.className = "absolute bottom-8 bg-[#C48B5D] text-white px-8 py-3 rounded-full font-bold shadow-lg hover:bg-[#A3734D] transition flex items-center gap-2";
+                btn.innerHTML = "🛒 Selecionar para Comprar";
+            }
+        }
+
+        function toggleCartLightbox() {
+            const f = fotosGaleriaCliente[fotoIndexCliente];
+            toggleCarrinhoCliente(f.id, f.url_marcada);
+            atualizarLightboxCliente();
+        }
+
+        
+        // Swipe Logic
+        let touchstartX = 0;
+        let touchendX = 0;
+        
+        function handleGesture() {
+            if (touchendX < touchstartX - 40) mudarFotoCliente(1); // Swipe left
+            if (touchendX > touchstartX + 40) mudarFotoCliente(-1); // Swipe right
+        }
+        
+        document.getElementById('lightbox-cliente').addEventListener('touchstart', e => {
+            touchstartX = e.changedTouches[0].screenX;
+        });
+        
+        document.getElementById('lightbox-cliente').addEventListener('touchend', e => {
+            touchendX = e.changedTouches[0].screenX;
+            handleGesture();
+        });
+
+        function tecladoLightboxCliente(e) {
+            if (e.key === 'ArrowRight') mudarFotoCliente(1);
+            if (e.key === 'ArrowLeft') mudarFotoCliente(-1);
+            if (e.key === 'Escape') fecharLightboxCliente();
+        }
+
+        function verTodasFotos() {
+            document.getElementById("status-busca").innerText = "";
+            document.getElementById('btn-ver-todas').classList.add('hidden');
+            abrirEvento(eventoAtivo, document.getElementById('titulo-galeria').innerText);
+        }
+
+
+        function abrirEvento(id, nome) {
+            eventoAtivo = id;
+            document.getElementById("lista-eventos").classList.add("hidden");
+            document.getElementById("galeria").classList.remove("hidden");
+            document.getElementById("titulo-galeria").innerText = nome;
+            document.getElementById("grid-fotos").innerHTML = "<p class='col-span-4 text-gray-500'>Carregando galeria do evento...</p>";
+            document.getElementById("status-busca").innerText = "";
+            
+            // Buscar todas as fotos
+            fetch(`/api/cliente/eventos/${id}/fotos`)
+                .then(res => res.json())
+                .then(data => {
+                    const grid = document.getElementById("grid-fotos");
+                    if (data.sucesso && data.fotos.length > 0) {
+                        renderizarGradeCliente(data.fotos);
+                    } else {
+                        grid.innerHTML = "<p class='col-span-4 text-gray-500'>Este evento ainda não tem fotos.</p>";
+                    }
+                })
+                .catch(e => {
+                    document.getElementById("grid-fotos").innerHTML = "<p class='text-red-500'>Erro ao carregar a galeria.</p>";
+                });
+        }
+        function voltarParaEventos() {
+            eventoAtivo = null;
+            document.getElementById("lista-eventos").classList.remove("hidden");
+            document.getElementById("galeria").classList.add("hidden");
+        }
+
+        async function realizarBuscaMagica() {
+            const status = document.getElementById("status-busca");
+            const grid = document.getElementById("grid-fotos");
+            status.innerHTML = "✨ Escaneando rostos...";
+            grid.innerHTML = "";
+            try {
+                const res = await fetch(`/api/cliente/buscar-fotos-magica/${eventoAtivo}`, { method: "GET", headers: { "Authorization": `Bearer ${token}` }});
+                const data = await res.json();
+                if (data.sucesso && data.fotos.length > 0) {
+                    status.innerHTML = `✅ Encontramos <strong>${data.fotos.length}</strong> fotos suas.`;
+                    renderizarGradeCliente(data.fotos);
+                    document.getElementById("btn-ver-todas").classList.remove("hidden");
+                } else {
+                    status.innerHTML = "😔 Nenhuma foto sua encontrada. Lembre-se de atualizar sua biometria no perfil!";
+                }
+            } catch (e) {}
+        }
+
+        // COMPRAS
+        async function carregarCompras() {
+            const container = document.getElementById("aba_compras");
+            container.innerHTML = "<p>Carregando recibos...</p>";
+            try {
+                const res = await fetch("/api/cliente/minhas-compras", { headers: { "Authorization": `Bearer ${token}` }});
+                const data = await res.json();
+                if(data.sucesso && data.pedidos.length > 0) {
+                    container.innerHTML = data.pedidos.map(p => `
+                        <div class="bg-white p-6 rounded-xl shadow-sm border border-[#EBEBEB]">
+                            <div class="flex justify-between items-center mb-4 border-b border-gray-100 pb-4">
+                                <div><h4 class="font-serif text-xl font-bold">Pedido #${p.id.substring(0,6)}</h4><p class="text-sm font-bold text-green-600 mt-1">${p.status || 'Aguardando Pagamento'}</p></div>
+                                <div class="text-right"><p class="text-gray-500 text-sm">Total</p><p class="font-bold text-[#C48B5D] text-xl">R$ ${parseFloat(p.total).toFixed(2)}</p></div>
+                            </div>
+                            <div class="flex gap-4 overflow-x-auto py-2">
+                                ${p.fotos.map(f => `<div class="shrink-0 w-24"><img src="${p.status === 'Liberado' ? f.url_original : f.url_marcada}" class="w-24 h-24 object-cover rounded-lg shadow-sm border"></div>`).join('')}
+                            </div>
+                            ${p.status === 'Liberado' ? `<button class="mt-4 px-6 py-2 bg-green-600 text-white rounded-lg font-bold shadow hover:bg-green-700">Baixar Fotos Originais</button>` : `<p class="mt-4 text-xs text-gray-500">Faça o PIX com a fotógrafa para liberar os originais.</p>`}
+                        </div>
+                    `).join('');
+                } else {
+                    container.innerHTML = "<div class='bg-white p-10 text-center rounded-xl border'>Você ainda não fez nenhuma compra.</div>";
+                }
+            } catch(e) {}
+        }
+
+        // CARRINHO BASE
+        function adicionarAoCarrinho(id, url) { if(!carrinho.find(f=>f.id===id)){ carrinho.push({id,url,preco:15}); document.getElementById("cart-count").innerText = carrinho.length; }}
+        function abrirCarrinho() { 
+            const div = document.getElementById("itens-carrinho");
+            if(carrinho.length===0) { div.innerHTML="<p>Vazio</p>"; document.getElementById("total-carrinho").innerText="R$ 0,00"; }
+            else {
+                div.innerHTML = carrinho.map(f=>`<div class="flex justify-between p-4 bg-gray-50 rounded border items-center"><img src="${f.url}" class="w-16 h-16 rounded object-cover"><span class="font-bold">R$15</span><button onclick="removerDoCarrinho('${f.id}')" class="text-red-500 font-bold">×</button></div>`).join('');
+                document.getElementById("total-carrinho").innerText = `R$ ${(carrinho.length*15).toFixed(2)}`;
+            }
+            document.getElementById("modal-carrinho").classList.remove("hidden");
+        }
+        function removerDoCarrinho(id) { carrinho = carrinho.filter(f=>f.id!==id); document.getElementById("cart-count").innerText = carrinho.length; abrirCarrinho(); }
+        function fecharCarrinho() { document.getElementById("modal-carrinho").classList.add("hidden"); }
+        async function finalizarPedido() {
+            if(carrinho.length===0) return;
+            try {
+                await fetch("/api/cliente/pedido", { method: "POST", headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` }, body: JSON.stringify({fotos_ids: carrinho.map(c=>c.id), total: carrinho.length*15}) });
+                carrinho = []; document.getElementById("cart-count").innerText = "0"; fecharCarrinho();
+                alert("Pedido Enviado! Vá na aba Minhas Compras.");
+                mudarAba('compras');
+            } catch(e) {}
+        }
+        function sair() { localStorage.clear(); window.location.href = "/site/login.html"; }
+    </script>
+</body>
+</html>

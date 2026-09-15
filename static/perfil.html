@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meu Perfil - Ápice</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="/site/css/style.css">
+</head>
+<body class="min-h-screen p-4 md:p-10">
+    
+    <header class="flex justify-between items-center mb-10 border-b border-gray-800 pb-6">
+        <div>
+            <h1 class="text-4xl text-[#2C2C2C]">Meu Perfil</h1>
+        </div>
+        <div class="flex gap-4 items-center">
+            <button onclick="window.location.href='/site/eventos.html'" class="text-gray-400 hover:text-black transition">Voltar para Eventos</button>
+        </div>
+    </header>
+
+    <main class="max-w-xl mx-auto glass-panel p-8">
+        <div id="loading" class="text-center text-gray-500">Carregando seus dados...</div>
+        
+        <form id="perfilForm" class="space-y-5 hidden" onsubmit="event.preventDefault(); salvarPerfil();">
+            <div>
+                <label for="nome" class="block text-sm text-gray-300 mb-1">Nome Completo</label>
+                <input type="text" id="nome" required class="input-dark w-full p-3 rounded">
+            </div>
+            
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm text-gray-300 mb-1">Telefone</label>
+                    <input type="text" id="telefone" required maxlength="15" class="input-dark w-full p-3 rounded">
+                </div>
+                <div>
+                    <label class="block text-sm text-gray-300 mb-1">CPF (Imutável)</label>
+                    <input type="text" id="cpf" disabled class="input-dark w-full p-3 rounded bg-gray-100 text-gray-500 cursor-not-allowed">
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-sm text-gray-300 mb-1">E-mail (Imutável)</label>
+                <input type="email" id="email" disabled class="input-dark w-full p-3 rounded bg-gray-100 text-gray-500 cursor-not-allowed">
+            </div>
+
+            <button type="submit" id="btnSalvar" class="btn-light w-full py-4 rounded mt-4 text-lg">
+                Salvar Alterações
+            </button>
+            <p id="status-perfil" class="text-center text-sm font-bold mt-2 hidden"></p>
+
+            <div class="border-t border-[#EBEBEB] pt-6 mt-6">
+                <h3 class="text-xl serif text-[#2C2C2C] mb-2">Sua Biometria</h3>
+                <p class="text-sm text-gray-500 mb-4">Essas são as fotos que a Inteligência Artificial usa para encontrar você nos eventos.</p>
+                
+                <div class="flex gap-4 mb-6 justify-center" id="fotos-biometria">
+                    <!-- Preenchido via JS -->
+                </div>
+
+                <button type="button" onclick="refazerBiometria()" class="w-full py-3 rounded border border-[#C48B5D] text-[#C48B5D] hover:bg-[#C48B5D] hover:text-[#2C2C2C] transition font-bold tracking-widest uppercase">
+                    Recadastrar Rosto
+                </button>
+            </div>
+        </form>
+    </main>
+
+    <script>
+        const token = localStorage.getItem("token");
+        if (!token) window.location.href = "/site/login.html";
+
+        const telInput = document.getElementById("telefone");
+        telInput.addEventListener("input", (e) => {
+            let v = e.target.value.replace(/\D/g,"");
+            v = v.replace(/^(\d{2})(\d)/g,"($1) $2");
+            v = v.replace(/(\d)(\d{4})$/,"$1-$2");
+            e.target.value = v;
+        });
+
+        document.addEventListener("DOMContentLoaded", carregarPerfil);
+
+        async function carregarPerfil() {
+            try {
+                const res = await fetch("/api/cliente/perfil", { headers: { "Authorization": `Bearer ${token}` }});
+                const data = await res.json();
+                if (data.sucesso) {
+                    document.getElementById("nome").value = data.cliente.nome;
+                    document.getElementById("cpf").value = data.cliente.cpf;
+                    document.getElementById("email").value = data.cliente.email;
+                    
+                    // Formata o telefone vindo do banco
+                    let tel = data.cliente.telefone || "";
+                    if(tel.length === 11) tel = tel.replace(/^(\d{2})(\d{5})(\d{4})$/,"($1) $2-$3");
+                    document.getElementById("telefone").value = tel;
+                    
+                    document.getElementById("loading").classList.add("hidden");
+                    document.getElementById("perfilForm").classList.remove("hidden");
+
+                    // Mostrar as fotos
+                    document.getElementById("fotos-biometria").innerHTML = `
+                        <img src="/biometria/${data.cliente.cpf}_0.jpg" class="w-24 h-24 rounded-lg object-cover border border-[#EBEBEB] shadow-sm" onerror="this.src='https://ui-avatars.com/api/?name=Rosto&background=F4EBE3&color=C48B5D'">
+                        <img src="/biometria/${data.cliente.cpf}_1.jpg" class="w-24 h-24 rounded-lg object-cover border border-[#EBEBEB] shadow-sm" onerror="this.src='https://ui-avatars.com/api/?name=Rosto&background=F4EBE3&color=C48B5D'">
+                        <img src="/biometria/${data.cliente.cpf}_2.jpg" class="w-24 h-24 rounded-lg object-cover border border-[#EBEBEB] shadow-sm" onerror="this.src='https://ui-avatars.com/api/?name=Rosto&background=F4EBE3&color=C48B5D'">
+                    `;
+                }
+            } catch(e) {}
+        }
+
+        async function salvarPerfil() {
+            const btn = document.getElementById("btnSalvar");
+            const status = document.getElementById("status-perfil");
+            btn.innerText = "Salvando...";
+            
+            const payload = {
+                nome: document.getElementById("nome").value,
+                telefone: document.getElementById("telefone").value.replace(/\D/g, "")
+            };
+
+            try {
+                const res = await fetch("/api/cliente/perfil", {
+                    method: "PUT",
+                    headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
+                    body: JSON.stringify(payload)
+                });
+                const data = await res.json();
+                if(data.sucesso) {
+                    status.innerText = "Perfil atualizado com sucesso!";
+                    status.className = "text-center text-sm font-bold mt-2 text-green-600";
+                    status.classList.remove("hidden");
+                }
+            } catch(e) {}
+            btn.innerText = "Salvar Alterações";
+        }
+
+        function refazerBiometria() {
+            localStorage.setItem("atualizar_biometria", "true");
+            window.location.href = "/site/cadastro_facial.html";
+        }
+    </script>
+</body>
+</html>

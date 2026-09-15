@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Paula Caldas</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="/site/css/style.css">
+</head>
+<body class="min-h-screen flex items-center justify-center p-4">
+    
+    <div class="glass-panel max-w-md w-full p-10 text-center">
+        <h1 class="text-4xl mb-2 font-serif text-[#C48B5D]">LUMINA</h1>
+        <p class="text-gray-500 text-sm mb-8">Acesse sua galeria fotográfica por Paula Caldas.</p>
+        
+        <form id="loginForm" class="space-y-5" onsubmit="event.preventDefault(); fazerLogin();">
+            <div class="text-left">
+                <label for="email" class="block text-sm text-gray-600 mb-1">E-mail</label>
+                <input type="email" id="email" required aria-label="Seu endereço de e-mail" class="input-dark w-full p-3 rounded">
+            </div>
+            
+            <div class="text-left">
+                <label for="senha" class="block text-sm text-gray-600 mb-1">Senha</label>
+                <input type="password" id="senha" required aria-label="Sua senha de acesso" class="input-dark w-full p-3 rounded">
+                <div class="flex justify-end mt-1">
+                    <a href="#" aria-label="Clique aqui se esqueceu sua senha" class="text-xs text-gray-500 hover:text-[#2C2C2C] transition">Esqueceu a senha?</a>
+                </div>
+            </div>
+
+            <button type="submit" id="btn-login" class="btn-light w-full py-4 rounded mt-4 text-lg">
+                Entrar
+            </button>
+        </form>
+
+        <p id="status" class="mt-4 text-sm text-red-400 hidden"></p>
+
+        <div class="mt-8 pt-6 border-t border-gray-800">
+            <p class="text-sm text-gray-500">Primeira vez aqui? <br>
+            <a href="/site/cadastro.html" class="text-[#2C2C2C] font-bold hover:underline mt-2 inline-block">Criar minha conta e biometria</a></p>
+        </div>
+    </div>
+
+    <script>
+        async function fazerLogin() {
+            const btn = document.getElementById("btn-login");
+            const status = document.getElementById("status");
+            btn.innerHTML = "Autenticando...";
+            btn.disabled = true;
+            status.classList.add("hidden");
+
+            const formData = new FormData();
+            formData.append("email", document.getElementById("email").value);
+            formData.append("senha", document.getElementById("senha").value);
+
+            try {
+                const res = await fetch("/api/auth/login", { method: "POST", body: formData });
+                const data = await res.json();
+                
+                if (data.token) {
+                    localStorage.setItem("token", data.token);
+                    window.location.href = "/site/eventos.html";
+                } else {
+                    status.innerText = data.erro || "E-mail ou senha incorretos.";
+                    status.classList.remove("hidden");
+                    btn.innerHTML = "Entrar";
+                    btn.disabled = false;
+                }
+            } catch (err) {
+                status.innerText = "Erro ao conectar com o servidor.";
+                status.classList.remove("hidden");
+                btn.innerHTML = "Entrar";
+                btn.disabled = false;
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lumina | Admin Login</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="/site/css/style.css">
+</head>
+<body class="bg-[#F8F7F3] min-h-screen flex items-center justify-center font-['Inter'] p-4">
+    <div class="bg-white p-10 rounded-2xl shadow-xl border border-[#EBEBEB] max-w-sm w-full relative overflow-hidden">
+        <div class="absolute top-0 left-0 w-full h-1 bg-[#C48B5D]"></div>
+        
+        <div class="text-center mb-8 mt-2">
+            <h1 class="text-4xl font-serif text-[#C48B5D] font-bold tracking-widest">LUMINA</h1>
+            <h2 class="text-gray-400 text-xs uppercase tracking-widest mt-2">Acesso Restrito - Administração</h2>
+        </div>
+
+        <form id="adminForm" onsubmit="event.preventDefault(); loginAdmin();" class="space-y-5">
+            <div>
+                <label class="block text-xs text-gray-500 mb-1 uppercase tracking-wide">E-mail Corporativo</label>
+                <input type="email" id="email" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-lg focus:border-[#C48B5D] focus:ring-1 focus:ring-[#C48B5D] outline-none transition" required>
+            </div>
+            <div>
+                <label class="block text-xs text-gray-500 mb-1 uppercase tracking-wide">Senha de Acesso</label>
+                <input type="password" id="senha" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-lg focus:border-[#C48B5D] focus:ring-1 focus:ring-[#C48B5D] outline-none transition" required>
+            </div>
+            
+            <button type="submit" class="w-full bg-[#2C2C2C] text-white py-4 rounded-lg font-bold hover:bg-black transition shadow-lg mt-2">
+                Entrar no Painel
+            </button>
+            
+            <div id="status-container" class="hidden mt-4 p-3 bg-red-50 border border-red-200 rounded-lg text-center">
+                <p id="status" class="text-red-500 text-sm font-bold"></p>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        async function loginAdmin() {
+            const btn = document.querySelector('button'); 
+            const statusContainer = document.getElementById("status-container");
+            const statusText = document.getElementById("status");
+            
+            btn.innerText = "Autenticando Segurança...";
+            btn.disabled = true;
+            statusContainer.classList.add("hidden");
+
+            const fd = new FormData();
+            fd.append("email", document.getElementById("email").value);
+            fd.append("senha", document.getElementById("senha").value);
+
+            try {
+                const res = await fetch("/api/auth/admin-login", { method: "POST", body: fd });
+                const data = await res.json();
+                
+                if (data.token) {
+                    localStorage.setItem("admin_token", data.token);
+                    window.location.href = "/site/admin.html";
+                } else {
+                    statusText.innerText = data.erro || "Acesso Negado. Credenciais inválidas.";
+                    statusContainer.classList.remove("hidden");
+                }
+            } catch(e) {
+                statusText.innerText = "Erro de conexão com o servidor de segurança.";
+                statusContainer.classList.remove("hidden");
+            }
+            
+            btn.innerText = "Entrar no Painel";
+            btn.disabled = false;
+        }
+    </script>
+</body>
+</html>

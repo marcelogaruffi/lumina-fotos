@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Lumina | Admin</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="/site/css/style.css">
+</head>
+<body class="bg-[#F8F7F3] text-[#2C2C2C] font-['Inter'] overflow-hidden">
+    <div class="flex h-screen">
+        <!-- Sidebar -->
+        <aside id="sidebar" class="w-64 bg-white border-r border-[#EBEBEB] flex flex-col transition-all duration-300 relative z-30">
+            <button onclick="toggleSidebar()" id="sidebar-arrow" class="absolute -right-3 top-8 bg-white border border-[#EBEBEB] rounded-full p-1.5 shadow-md text-gray-400 hover:text-[#C48B5D] z-40 transition-transform">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+            </button>
+            <div class="h-20 flex items-center px-6 border-b border-[#EBEBEB] overflow-hidden">
+                <h1 class="font-serif text-2xl font-bold tracking-wider text-[#C48B5D] whitespace-nowrap">LUMINA</h1>
+            </div>
+            
+            <nav class="flex-1 px-4 py-6 space-y-2 overflow-hidden">
+                <button onclick="mudarAba('eventos')" id="btn-eventos" class="w-full flex items-center gap-4 px-4 py-3 bg-[#F4EBE3] text-[#C48B5D] font-bold rounded-lg transition menu-btn whitespace-nowrap">
+                    <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                    <span class="menu-text">Coleções (Eventos)</span>
+                </button>
+                <button onclick="mudarAba('clientes')" id="btn-clientes" class="w-full flex items-center gap-4 px-4 py-3 text-gray-500 hover:bg-gray-50 hover:text-[#C48B5D] font-medium rounded-lg transition menu-btn whitespace-nowrap">
+                    <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+                    <span class="menu-text">Clientes</span>
+                </button>
+                <button onclick="mudarAba('pedidos')" id="btn-pedidos" class="w-full flex items-center gap-4 px-4 py-3 text-gray-500 hover:bg-gray-50 hover:text-[#C48B5D] font-medium rounded-lg transition menu-btn whitespace-nowrap">
+                    <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
+                    <span class="menu-text">Pedidos & Vendas</span>
+                </button>
+            </nav>
+            <div class="p-4 border-t border-[#EBEBEB] overflow-hidden">
+                <button onclick="localStorage.clear(); window.location.href='/site/admin_login.html'" class="w-full flex items-center gap-4 px-4 py-2 text-gray-400 hover:text-red-500 transition whitespace-nowrap">
+                    <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+                    <span class="menu-text">Sair</span>
+                </button>
+            </div>
+        </aside>
+
+        <main class="flex-1 flex flex-col h-screen overflow-hidden">
+            <header class="bg-white border-b border-[#EBEBEB] h-20 flex items-center justify-between px-8 shrink-0 shadow-sm">
+                <h2 id="header-title" class="text-2xl font-serif text-[#2C2C2C]">Visão Geral</h2>
+                <div class="flex items-center gap-4">
+                    <div class="text-right hidden md:block">
+                        <p class="text-sm font-bold text-[#2C2C2C]">Paula Caldas</p>
+                        <p class="text-xs text-gray-400">Administradora</p>
+                    </div>
+                    <img src="https://ui-avatars.com/api/?name=Paula+Caldas&background=C48B5D&color=fff" class="w-10 h-10 rounded-full border-2 border-[#C48B5D] p-0.5">
+                </div>
+            </header>
+
+            <div class="flex-1 overflow-y-auto p-8">
+                
+                <!-- Aba: Eventos -->
+                <div id="aba_eventos" class="aba-conteudo block">
+                    <!-- Lista de Eventos -->
+                    <div id="view-lista-eventos">
+                        <div class="flex justify-between items-center mb-6">
+                            <h3 class="font-serif text-2xl text-[#2C2C2C]">Suas Coleções</h3>
+                            <button onclick="document.getElementById('modal-novo-evento').classList.remove('hidden')" class="btn-light px-6 py-2 rounded-lg text-sm shadow-md">+ Criar Evento</button>
+                        </div>
+                        <div id="grid-eventos-admin" class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <p class="text-gray-500 col-span-3">Carregando eventos...</p>
+                        </div>
+                    </div>
+
+                    <!-- Detalhe do Evento -->
+                    <div id="view-detalhe-evento" class="hidden">
+                        <button onclick="voltarListaEventos()" class="text-[#C48B5D] font-bold text-sm mb-4 flex items-center gap-2 hover:text-[#B07A4F]">← Voltar para Coleções</button>
+                        <div class="bg-white p-6 rounded-xl shadow-sm border border-[#EBEBEB] mb-6 flex justify-between items-center">
+                            <div>
+                                <h2 id="detalhe-nome-evento" class="font-serif text-3xl text-[#2C2C2C] font-bold">Nome</h2>
+                                <p class="text-sm text-gray-500 mt-1">Gerencie as fotos desta galeria.</p>
+                            </div>
+                            <div class="flex items-center gap-4">
+                                <input type="file" id="fotos_upload" multiple accept="image/*" class="hidden" onchange="subirFotos()">
+                                <button onclick="document.getElementById('fotos_upload').click()" class="btn-light px-6 py-3 rounded-lg shadow-md font-bold flex items-center gap-2">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
+                                    Adicionar Fotos
+                                </button>
+                            </div>
+                        </div>
+                        <p id="status_upload" class="text-[#C48B5D] font-bold mb-4 text-center"></p>
+                        
+                        <div id="grid-fotos-admin" class="grid grid-cols-2 md:grid-cols-5 gap-4"></div>
+                    </div>
+                </div>
+
+                <!-- Aba: Clientes -->
+                <div id="aba_clientes" class="aba-conteudo hidden">
+                    <div class="bg-white rounded-xl shadow-sm border border-[#EBEBEB] overflow-hidden">
+                        <div class="p-6 border-b border-[#EBEBEB]"><h3 class="font-serif text-xl">Carteira de Clientes</h3></div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left text-sm"><thead class="bg-[#F8F7F3] text-gray-500 uppercase text-xs"><tr><th class="px-6 py-4">Nome</th><th class="px-6 py-4">E-mail</th><th class="px-6 py-4">Telefone</th><th class="px-6 py-4">CPF</th></tr></thead><tbody id="lista_clientes_tabela" class="divide-y divide-[#EBEBEB]"></tbody></table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Aba: Pedidos -->
+                <div id="aba_pedidos" class="aba-conteudo hidden">
+                    <h3 class="font-serif text-2xl text-[#2C2C2C] mb-6">Pedidos Recebidos</h3>
+                    <div id="lista_pedidos_cards" class="space-y-4"></div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modais -->
+
+    <div id="lightbox" class="fixed inset-0 bg-black/95 z-[100] hidden flex items-center justify-center backdrop-blur-sm">
+        <button onclick="fecharLightbox()" class="absolute top-6 right-8 text-white text-5xl hover:text-[#C48B5D] transition drop-shadow-lg">&times;</button>
+        <button onclick="mudarFoto(-1)" class="absolute left-4 md:left-10 text-white text-6xl hover:text-[#C48B5D] px-4 py-2 transition drop-shadow-lg">&lsaquo;</button>
+        <img id="lightbox-img" src="" class="max-h-[90vh] max-w-[90vw] object-contain rounded-lg shadow-2xl transition-transform">
+        <button onclick="mudarFoto(1)" class="absolute right-4 md:right-10 text-white text-6xl hover:text-[#C48B5D] px-4 py-2 transition drop-shadow-lg">&rsaquo;</button>
+    </div>
+
+    <div id="modal-novo-evento" class="fixed inset-0 bg-white/80 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-white w-full max-w-md p-8 rounded-2xl shadow-2xl border border-[#EBEBEB]">
+            <h3 class="font-serif text-2xl mb-4">Novo Evento</h3>
+            <input type="text" id="nome_evento" placeholder="Nome do Evento" class="w-full p-3 rounded-lg border border-gray-200 focus:border-[#C48B5D] outline-none mb-3 bg-gray-50">
+            <input type="date" id="data_evento" class="w-full p-3 rounded-lg border border-gray-200 focus:border-[#C48B5D] outline-none mb-6 bg-gray-50">
+            <div class="flex gap-4">
+                <button onclick="document.getElementById('modal-novo-evento').classList.add('hidden')" class="flex-1 py-3 text-gray-500 font-bold">Cancelar</button>
+                <button onclick="criarEvento()" class="flex-1 py-3 btn-light rounded-lg">Criar</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-pedido-detalhe" class="fixed inset-0 bg-white/80 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-white w-full max-w-3xl p-8 rounded-2xl shadow-2xl border border-[#EBEBEB] max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="font-serif text-3xl">Detalhes do Pedido</h3>
+                <button onclick="document.getElementById('modal-pedido-detalhe').classList.add('hidden')" class="text-3xl text-gray-400 hover:text-black">&times;</button>
+            </div>
+            <div id="conteudo-pedido-detalhe"></div>
+        </div>
+    </div>
+
+    <script>
+        const adminToken = localStorage.getItem("admin_token");
+        if (!adminToken) window.location.href = "/site/admin_login.html";
+
+        let sidebarOpen = true;
+        let eventoAtivo = null;
+
+        let fotosGaleria = [];
+        let fotoIndexAtual = 0;
+        
+        function abrirLightbox(index) {
+            fotoIndexAtual = index;
+            document.getElementById('lightbox').classList.remove('hidden');
+            atualizarLightbox();
+            document.addEventListener('keydown', tecladoLightbox);
+        }
+        
+        
+        let touchstartX = 0;
+        let touchendX = 0;
+        
+        function handleGesture() {
+            if (touchendX < touchstartX - 40) mudarFoto(1);
+            if (touchendX > touchstartX + 40) mudarFoto(-1);
+        }
+        
+        document.getElementById('lightbox').addEventListener('touchstart', e => {
+            touchstartX = e.changedTouches[0].screenX;
+        });
+        
+        document.getElementById('lightbox').addEventListener('touchend', e => {
+            touchendX = e.changedTouches[0].screenX;
+            handleGesture();
+        });
+
+        function fecharLightbox() {
+            document.getElementById('lightbox').classList.add('hidden');
+            document.removeEventListener('keydown', tecladoLightbox);
+        }
+        
+        function mudarFoto(dir) {
+            fotoIndexAtual += dir;
+            if (fotoIndexAtual < 0) fotoIndexAtual = fotosGaleria.length - 1;
+            if (fotoIndexAtual >= fotosGaleria.length) fotoIndexAtual = 0;
+            atualizarLightbox();
+        }
+        
+        function atualizarLightbox() {
+            const f = fotosGaleria[fotoIndexAtual];
+            document.getElementById('lightbox-img').src = `/api/admin/foto/${f.id}/original?authorization=${adminToken}`;
+        }
+        
+        function tecladoLightbox(e) {
+            if (e.key === 'ArrowRight') mudarFoto(1);
+            if (e.key === 'ArrowLeft') mudarFoto(-1);
+            if (e.key === 'Escape') fecharLightbox();
+        }
+
+
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const arrow = document.getElementById('sidebar-arrow');
+            const texts = document.querySelectorAll('.menu-text');
+            sidebarOpen = !sidebarOpen;
+            if (sidebarOpen) {
+                sidebar.classList.remove('w-20'); sidebar.classList.add('w-64');
+                arrow.style.transform = "rotate(0deg)";
+                texts.forEach(t => t.classList.remove('hidden'));
+            } else {
+                sidebar.classList.remove('w-64'); sidebar.classList.add('w-20');
+                arrow.style.transform = "rotate(180deg)";
+                texts.forEach(t => t.classList.add('hidden'));
+            }
+        }
+
+        function mudarAba(nomeAba) {
+            document.querySelectorAll('.aba-conteudo').forEach(el => el.classList.add('hidden'));
+            document.getElementById('aba_' + nomeAba).classList.remove('hidden');
+            document.querySelectorAll('.menu-btn').forEach(btn => {
+                btn.className = "w-full flex items-center gap-4 px-4 py-3 text-gray-500 hover:bg-gray-50 hover:text-[#C48B5D] font-medium rounded-lg transition menu-btn whitespace-nowrap";
+            });
+            document.getElementById('btn-' + nomeAba).className = "w-full flex items-center gap-4 px-4 py-3 bg-[#F4EBE3] text-[#C48B5D] font-bold rounded-lg transition menu-btn whitespace-nowrap";
+            if(nomeAba === 'eventos') voltarListaEventos();
+            if(nomeAba === 'clientes') carregarClientes();
+            if(nomeAba === 'pedidos') carregarPedidos();
+        }
+
+        // CARREGAR EVENTOS (CARDS)
+        document.addEventListener("DOMContentLoaded", carregarListaEventos);
+
+        async function carregarListaEventos() {
+            try {
+                const res = await fetch("/api/cliente/eventos");
+                const data = await res.json();
+                const grid = document.getElementById("grid-eventos-admin");
+                if (data.sucesso && data.eventos.length > 0) {
+                    grid.innerHTML = data.eventos.map(ev => `
+                        <div class="bg-white p-6 rounded-xl shadow-sm border border-[#EBEBEB] hover:shadow-md cursor-pointer transition flex flex-col justify-between" onclick="abrirEvento('${ev.id}', '${ev.nome}')">
+                            <h4 class="font-serif text-xl font-bold mb-2">${ev.nome}</h4>
+                            <p class="text-sm text-gray-400 mb-4">${new Date(ev.data).toLocaleDateString()}</p>
+                            <button class="w-full py-2 bg-gray-50 text-[#C48B5D] font-bold rounded-lg hover:bg-[#F4EBE3] transition">Gerenciar Fotos</button>
+                        </div>
+                    `).join('');
+                } else {
+                    grid.innerHTML = `<p class="col-span-3 text-gray-400">Nenhum evento criado.</p>`;
+                }
+            } catch(e) {}
+        }
+
+        async function criarEvento() {
+            const formData = new FormData();
+            formData.append("nome", document.getElementById("nome_evento").value);
+            formData.append("data", document.getElementById("data_evento").value);
+            try {
+                const res = await fetch("/admin/eventos", { 
+                    method: "POST", 
+                    headers: { "Authorization": "Bearer " + adminToken },
+                    body: formData 
+                });
+                document.getElementById('modal-novo-evento').classList.add('hidden');
+                carregarListaEventos();
+            } catch(e) {}
+        }
+
+        // GERENCIAR FOTOS DO EVENTO
+        async function abrirEvento(id, nome) {
+            eventoAtivo = id;
+            document.getElementById("view-lista-eventos").classList.add("hidden");
+            document.getElementById("view-detalhe-evento").classList.remove("hidden");
+            document.getElementById("detalhe-nome-evento").innerText = nome;
+            carregarFotosEvento(id);
+        }
+
+        function voltarListaEventos() {
+            eventoAtivo = null;
+            document.getElementById("view-lista-eventos").classList.remove("hidden");
+            document.getElementById("view-detalhe-evento").classList.add("hidden");
+            carregarListaEventos();
+        }
+
+        async function carregarFotosEvento(id) {
+            const grid = document.getElementById("grid-fotos-admin");
+            grid.innerHTML = "<p>Carregando fotos...</p>";
+            try {
+                const res = await fetch(`/api/admin/eventos/${id}/fotos`, { headers: { "Authorization": "Bearer " + adminToken }});
+                const data = await res.json();
+                if(data.sucesso && data.fotos.length > 0) {
+                    fotosGaleria = data.fotos; // Salva para o lightbox
+                    grid.innerHTML = data.fotos.map((f, index) => `
+                        <div class="relative group bg-gray-100 rounded-lg overflow-hidden border border-gray-200 aspect-square cursor-pointer shadow-sm hover:shadow-md transition" onclick="abrirLightbox(${index})">
+                            <img src="/api/admin/foto/${f.id}/original?authorization=${adminToken}" class="w-full h-full object-cover">
+                            <div class="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition">
+                                <button onclick="event.stopPropagation(); deletarFoto('${f.id}')" class="bg-red-500 text-white p-2 rounded-full hover:bg-red-600 shadow-md">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                                </button>
+                            </div>
+                        </div>
+                    `).join('');
+                } else {
+                    fotosGaleria = [];
+                    grid.innerHTML = "<p class='col-span-5 text-gray-400'>Ainda não há fotos nesta galeria.</p>";
+                }
+            } catch(e) {}
+        }
+
+        async function subirFotos() {
+            const arquivos = document.getElementById("fotos_upload").files;
+            const status = document.getElementById("status_upload");
+            if(!eventoAtivo || arquivos.length === 0) return;
+            
+            for(let i=0; i<arquivos.length; i++) {
+                const formData = new FormData();
+                formData.append("evento_id", eventoAtivo);
+                formData.append("foto", arquivos[i]);
+                status.innerText = `⏳ Extraindo IA: ${i+1} de ${arquivos.length}...`;
+                await fetch("/admin/upload-foto", { 
+                    method: "POST", 
+                    headers: { "Authorization": "Bearer " + adminToken },
+                    body: formData 
+                });
+            }
+            status.innerText = "✅ Upload concluído!";
+            setTimeout(() => { status.innerText = ""; }, 3000);
+            carregarFotosEvento(eventoAtivo);
+        }
+
+        async function deletarFoto(id) {
+            if(!confirm("Tem certeza que deseja excluir esta foto?")) return;
+            await fetch(`/api/admin/foto/${id}`, { 
+                method: "DELETE",
+                headers: { "Authorization": "Bearer " + adminToken }
+            });
+            carregarFotosEvento(eventoAtivo);
+        }
+
+        // CLIENTES
+        async function carregarClientes() {
+            try {
+                const res = await fetch("/api/admin/clientes", { headers: { "Authorization": "Bearer " + adminToken }});
+                const data = await res.json();
+                const tbody = document.getElementById("lista_clientes_tabela");
+                if (data.clientes && data.clientes.length > 0) {
+                    tbody.innerHTML = data.clientes.map(c => `
+                        <tr class="hover:bg-gray-50 transition">
+                            <td class="px-6 py-4 font-bold">${c.nome}</td>
+                            <td class="px-6 py-4 text-gray-500">${c.email}</td>
+                            <td class="px-6 py-4">${c.telefone || 'N/A'}</td>
+                            <td class="px-6 py-4 font-mono text-xs text-gray-400">${c.cpf || 'N/A'}</td>
+                        </tr>
+                    `).join('');
+                }
+            } catch(e) {}
+        }
+
+        // PEDIDOS
+        async function carregarPedidos() {
+            try {
+                const res = await fetch("/api/admin/pedidos", { headers: { "Authorization": "Bearer " + adminToken }});
+                const data = await res.json();
+                const container = document.getElementById("lista_pedidos_cards");
+                if (data.pedidos && data.pedidos.length > 0) {
+                    container.innerHTML = data.pedidos.map(p => `
+                        <div class="bg-white p-6 rounded-xl shadow-sm border border-[#EBEBEB] flex justify-between items-center hover:shadow-md transition">
+                            <div>
+                                <p class="text-sm text-gray-400 mb-1">ID: <span class="font-mono text-black">${p.id.substring(0,8)}</span></p>
+                                <h4 class="font-serif text-2xl font-bold text-[#C48B5D]">R$ ${parseFloat(p.total).toFixed(2)}</h4>
+                                <p class="text-sm font-bold mt-1 text-green-600">${p.status || 'Aguardando Pagamento'}</p>
+                            </div>
+                            <div class="flex gap-2">
+                                <button onclick="abrirDetalhesPedido('${p.id}')" class="px-6 py-2 bg-[#F8F7F3] border border-[#EBEBEB] hover:bg-white text-gray-800 font-bold rounded-lg transition shadow-sm">Ver Detalhes</button>
+                                <button onclick="apagarPedido('${p.id}')" class="px-4 py-2 bg-red-100 text-red-600 hover:bg-red-500 hover:text-white font-bold rounded-lg transition shadow-sm">🗑️</button>
+                            </div>
+                        </div>
+                    `).join('');
+                }
+            } catch(e) {}
+        }
+
+        
+        async function apagarPedido(id) {
+            if(!confirm("Tem certeza que deseja apagar este pedido permanentemente?")) return;
+            try {
+                const res = await fetch(`/api/admin/pedido/${id}`, { method: "DELETE", headers: { "Authorization": "Bearer " + adminToken }});
+                const data = await res.json();
+                if(data.sucesso) carregarPedidos();
+                else alert("Erro ao apagar pedido.");
+            } catch(e) { alert(e); }
+        }
+
+        async function abrirDetalhesPedido(id) {
+            const container = document.getElementById("conteudo-pedido-detalhe");
+            container.innerHTML = "<p>Carregando...</p>";
+            document.getElementById('modal-pedido-detalhe').classList.remove('hidden');
+            
+            try {
+                const res = await fetch(`/api/admin/pedido/${id}`, { headers: { "Authorization": "Bearer " + adminToken }});
+                const data = await res.json();
+                if(data.sucesso) {
+                    container.innerHTML = `
+                        <div class="bg-gray-50 p-4 rounded-lg mb-6 border border-gray-200">
+                            <p class="font-bold text-lg mb-1">${data.cliente.nome}</p>
+                            <p class="text-sm text-gray-600">📱 ${data.cliente.telefone} | ✉️ ${data.cliente.email}</p>
+                        </div>
+                        <h4 class="font-serif text-xl mb-4">Fotos Compradas (${data.fotos.length})</h4>
+                        <div class="grid grid-cols-4 gap-4">
+                            ${data.fotos.map(f => `<img src="${f.url_marcada}" class="w-full h-32 object-cover rounded-lg shadow-sm border border-gray-200">`).join('')}
+                        </div>
+                        <div class="mt-8 flex gap-4">
+                            <button class="flex-1 py-3 bg-green-600 text-white rounded-lg font-bold hover:bg-green-700 shadow-md">Marcar como Pago / Liberar Fotos</button>
+                        </div>
+                    `;
+                }
+            } catch(e) {}
+        }
+    </script>
+</body>
+</html>

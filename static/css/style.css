@@ -1,0 +1,120 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;600&display=swap');
+
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: #F8F7F3; /* Off-white / Areia */
+    color: #2C2C2C; /* Chumbo */
+    margin: 0;
+    padding: 0;
+}
+
+h1, h2, h3, h4, h5, .serif {
+    font-family: 'Playfair Display', serif;
+}
+
+/* Painéis Premium Claro */
+.glass-panel {
+    background: #FFFFFF;
+    border: 1px solid #EBEBEB;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.04);
+}
+
+/* Inputs Premium */
+.input-dark {
+    background: #FAFAFA;
+    border: 1px solid #DDDDDD;
+    color: #2C2C2C;
+    transition: all 0.3s;
+}
+
+.input-dark:focus, .input-dark:focus-visible {
+    border-color: #C48B5D;
+    outline: 2px solid #C48B5D;
+    outline-offset: 2px;
+    box-shadow: 0 0 8px rgba(196, 139, 93, 0.2);
+    background: #FFFFFF;
+}
+
+/* Botões Terracota / Ouro */
+.btn-light {
+    background: #C48B5D;
+    color: #FFFFFF;
+    font-family: 'Playfair Display', serif;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    transition: all 0.3s;
+    border: none;
+}
+
+.btn-light:hover {
+    background: #B07A4F;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(196, 139, 93, 0.4);
+}
+
+.btn-light:disabled {
+    background: #E0E0E0;
+    color: #999999;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+/* Textos e Links auxiliares */
+.text-gray-400 { color: #767676; }
+.text-gray-300 { color: #555555; }
+.text-gray-500 { color: #888888; }
+.text-white { color: #2C2C2C; } /* Subvertendo para chumbo no tema claro */
+.bg-gray-900 { background-color: #FFFFFF; border: 1px solid #EBEBEB; }
+.bg-gray-800 { background-color: #F8F7F3; }
+.border-gray-800 { border-color: #EBEBEB; }
+
+/* Câmera e Guia Oval para Reconhecimento Facial */
+.camera-container {
+    position: relative;
+    width: 100%;
+    max-width: 400px;
+    margin: 0 auto;
+    overflow: hidden;
+    border-radius: 12px;
+    background: #000;
+}
+
+.camera-video {
+    width: 100%;
+    height: auto;
+    display: block;
+    transform: scaleX(-1);
+}
+
+.oval-overlay {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 200px;
+    height: 280px;
+    border: 3px dashed rgba(255, 255, 255, 0.9);
+    border-radius: 50%;
+    box-shadow: 0 0 0 2000px rgba(0, 0, 0, 0.7);
+    z-index: 10;
+    pointer-events: none;
+}
+
+.modal-backdrop {
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(5px);
+}
+
+/* Mobile Opt - Camera */
+.camera-container {
+    height: 100%;
+}
+.oval-overlay {
+    width: 60vw;
+    height: 80vw;
+    max-width: 200px;
+    max-height: 280px;
+}

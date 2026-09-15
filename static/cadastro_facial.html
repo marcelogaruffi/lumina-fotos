@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Biometria Facial - Ápice</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="/site/css/style.css">
+    <style>
+        .face-guide {
+            transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+            transform-style: preserve-3d;
+        }
+    </style>
+</head>
+<body class="h-[100dvh] overflow-hidden flex flex-col items-center justify-center p-2 md:p-4">
+    
+    <div class="glass-panel max-w-lg w-full p-4 md:p-6 text-center flex flex-col h-full max-h-full">
+        <h1 class="text-3xl mb-2 text-[#2C2C2C]">Reconhecimento Facial</h1>
+        <p class="text-gray-500 text-sm mb-6">Siga o guia visual. O botão só é liberado se a luz estiver ideal.</p>
+        
+        <!-- Painel de Status em Tempo Real -->
+        <div class="flex justify-between items-center bg-gray-900 border border-gray-700 p-4 rounded-lg mb-4">
+            <div class="flex items-center gap-2">
+                <span class="text-sm text-gray-500">Luz:</span>
+                <span id="light-status" class="font-bold text-sm">Aguardando...</span>
+            </div>
+            
+            <div class="flex items-center gap-3">
+                <span class="text-sm text-gray-500">Posição:</span>
+                <!-- SVG Elegante do Rosto (Line Art) com CSS 3D -->
+                <div style="perspective: 300px;">
+                    <svg id="rostinho" class="face-guide w-12 h-12 text-[#2C2C2C]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round">
+                        <!-- Rosto -->
+                        <path d="M4 10c0-4.4 3.6-8 8-8s8 3.6 8 8c0 5.5-4 11-8 11s-8-5.5-8-11z" />
+                        <!-- Cabelo/Franja Elegante -->
+                        <path d="M4 10c4-1 6-4 8-8 2 4 4 7 8 8" />
+                        <!-- Olhos Tranquilos -->
+                        <path d="M8 12c.5-.5 1.5-.5 2 0" />
+                        <path d="M14 12c.5-.5 1.5-.5 2 0" />
+                        <!-- Nariz Delicado -->
+                        <path d="M12 13v3h-1" />
+                        <!-- Boca -->
+                        <path d="M10 18c1 .5 3 .5 4 0" />
+                    </svg>
+                </div>
+            </div>
+        </div>
+
+        <!-- Instruções Dinâmicas -->
+        <div id="instrucao-box" class="bg-blue-900/40 border border-blue-500/30 text-blue-200 p-4 rounded-lg mb-6 shadow-lg h-24 flex flex-col justify-center">
+            <h3 id="passo-titulo" class="text-xl serif font-bold text-[#2C2C2C] mb-1">Passo 1 de 3</h3>
+            <p id="passo-texto" class="text-md">Posicione seu rosto dentro do círculo e olhe <strong>DIRETO PARA A CÂMERA</strong>.</p>
+        </div>
+
+        <!-- Câmera com Máscara Oval -->
+        <div class="camera-container flex-1 min-h-0 relative mb-4">
+            <video id="video" autoplay playsinline class="w-full h-full object-cover transform scale-x-[-1] rounded-lg"></video>
+            <div class="oval-overlay"></div>
+            <canvas id="canvas" class="hidden"></canvas>
+            <canvas id="light-canvas" class="hidden"></canvas>
+        </div>
+
+        <button id="btnCapturar" onclick="capturarFoto()" disabled class="btn-light w-full py-4 rounded text-xl flex items-center justify-center gap-2 opacity-50 cursor-not-allowed">
+            📸 Capturar Rosto (Frente)
+        </button>
+
+        <p id="status" class="mt-4 text-sm text-gray-500"></p>
+    </div>
+
+    <script>
+        const video = document.getElementById('video');
+        const canvas = document.getElementById('canvas');
+        const lightCanvas = document.getElementById('light-canvas');
+        const btnCapturar = document.getElementById('btnCapturar');
+        const passoTitulo = document.getElementById('passo-titulo');
+        const passoTexto = document.getElementById('passo-texto');
+        const status = document.getElementById('status');
+        const lightStatus = document.getElementById('light-status');
+        const rostinho = document.getElementById('rostinho');
+        const instrucaoBox = document.getElementById('instrucao-box');
+
+        let passoAtual = 1;
+        const fotosCapturadas = [];
+        let luminosidadeBoa = false;
+
+        async function iniciarCamera() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } });
+                video.srcObject = stream;
+                
+                video.addEventListener('play', () => {
+                    requestAnimationFrame(checarLuminosidade);
+                });
+            } catch (err) {
+                status.innerHTML = "<span class='text-red-400'>Erro ao acessar a câmera. Permissão negada.</span>";
+            }
+        }
+
+        function checarLuminosidade() {
+            if (video.paused || video.ended) return;
+
+            const ctx = lightCanvas.getContext('2d');
+            lightCanvas.width = 32;
+            lightCanvas.height = 32;
+            ctx.drawImage(video, 0, 0, 32, 32);
+            
+            const data = ctx.getImageData(0, 0, 32, 32).data;
+            let brilhoTotal = 0;
+            
+            for(let i = 0; i < data.length; i+=4) {
+                brilhoTotal += (data[i] * 0.299 + data[i+1] * 0.587 + data[i+2] * 0.114);
+            }
+            const brilhoMedio = brilhoTotal / (32 * 32);
+
+            if (brilhoMedio < 45) {
+                lightStatus.innerHTML = "🔴 Muito Escura";
+                luminosidadeBoa = false;
+            } else if (brilhoMedio > 220) {
+                lightStatus.innerHTML = "🟡 Muito Clara";
+                luminosidadeBoa = true; 
+            } else {
+                lightStatus.innerHTML = "🟢 Excelente";
+                luminosidadeBoa = true;
+            }
+
+            atualizarBotao();
+            requestAnimationFrame(checarLuminosidade);
+        }
+
+        function atualizarBotao() {
+            if (luminosidadeBoa && passoAtual <= 3) {
+                btnCapturar.disabled = false;
+                btnCapturar.classList.remove('opacity-50', 'cursor-not-allowed');
+            } else {
+                btnCapturar.disabled = true;
+                btnCapturar.classList.add('opacity-50', 'cursor-not-allowed');
+            }
+        }
+
+        function capturarFoto() {
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            const ctx = canvas.getContext('2d');
+            
+            ctx.translate(canvas.width, 0);
+            ctx.scale(-1, 1);
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+            
+            const base64Foto = canvas.toDataURL('image/jpeg');
+            fotosCapturadas.push(base64Foto);
+
+            avancarPasso();
+        }
+
+        function avancarPasso() {
+            passoAtual++;
+            
+            if (passoAtual === 2) {
+                passoTitulo.innerText = "Passo 2 de 3";
+                passoTexto.innerHTML = "Vire o rosto <strong class='text-[#2C2C2C]'>LIGEIRAMENTE (45°) para a ESQUERDA</strong>. Imite o ícone.";
+                btnCapturar.innerHTML = "📸 Capturar Rosto (Esquerda)";
+                rostinho.style.transform = "rotateY(-45deg)";
+            } 
+            else if (passoAtual === 3) {
+                passoTitulo.innerText = "Passo 3 de 3";
+                passoTexto.innerHTML = "Vire o rosto <strong class='text-[#2C2C2C]'>LIGEIRAMENTE (45°) para a DIREITA</strong>. Imite o ícone.";
+                btnCapturar.innerHTML = "📸 Capturar Rosto (Direita)";
+                rostinho.style.transform = "rotateY(45deg)";
+            }
+            else if (passoAtual > 3) {
+                finalizarCadastro();
+            }
+        }
+
+        async function finalizarCadastro() {
+            passoTitulo.innerText = "Processando...";
+            passoTexto.innerHTML = "A Inteligência Artificial está extraindo seus vetores. Aguarde...";
+            btnCapturar.classList.add("hidden");
+            document.querySelector(".camera-container").classList.add("hidden");
+            rostinho.style.transform = "rotateY(0deg)";
+            
+            let dadosStr = localStorage.getItem("temp_cadastro");
+            if (!dadosStr) dadosStr = "{}";
+            const dadosPessoais = JSON.parse(dadosStr);
+            
+            const atualizarBio = localStorage.getItem("atualizar_biometria") === "true";
+            
+            const payload = {
+                ...dadosPessoais,
+                foto_frente: fotosCapturadas[0] || "",
+                foto_esquerda: fotosCapturadas[1] || "",
+                foto_direita: fotosCapturadas[2] || ""
+            };
+
+            try {
+                const endpoint = atualizarBio ? "/api/cliente/atualizar-biometria" : "/api/auth/cadastro-completo";
+                const headers = { "Content-Type": "application/json" };
+                if (atualizarBio) headers["Authorization"] = `Bearer ${localStorage.getItem("token")}`;
+
+                const response = await fetch(endpoint, {
+                    method: "POST",
+                    headers: headers,
+                    body: JSON.stringify(payload)
+                });
+                
+                const data = await response.json();
+                if (data.sucesso) {
+                    if (atualizarBio) localStorage.removeItem("atualizar_biometria");
+                    instrucaoBox.className = "bg-green-100 border border-green-500 text-green-800 p-6 rounded-lg mb-6 shadow-lg h-32 flex flex-col justify-center items-center text-center";
+                    passoTitulo.innerText = "✅ Sucesso Absoluto!";
+                    passoTexto.innerHTML = atualizarBio ? "Sua nova biometria foi atualizada.<br>Voltando ao perfil..." : "Sua biometria e cadastro foram salvos.<br>Redirecionando para o Login...";
+                    setTimeout(() => { window.location.href = atualizarBio ? "/site/perfil.html" : "/site/login.html"; }, 3000);
+                } else {
+                    status.innerHTML = `<span class='text-red-400'>Erro: ${data.erro}</span>`;
+                }
+            } catch (err) {
+                status.innerHTML = "<span class='text-red-400'>Erro de conexão com o servidor.</span>";
+            }
+        }
+
+        window.addEventListener('load', iniciarCamera);
+    </script>
+</body>
+</html>

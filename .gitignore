@@ -1,0 +1,6 @@
+venv/
+.env
+temp/
+biometria/
+__pycache__/
+*.pyc
