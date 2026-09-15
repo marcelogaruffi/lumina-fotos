@@ -23,6 +23,11 @@ os.makedirs("temp", exist_ok=True)
 os.makedirs("static", exist_ok=True)
 
 # Servindo as telas HTML
+from fastapi.responses import RedirectResponse
+
+@app.get("/")
+def read_root():
+    return RedirectResponse(url="/site/login.html")
 app.mount("/site", StaticFiles(directory="static", html=True), name="static")
 import os
 os.makedirs("biometria", exist_ok=True)
