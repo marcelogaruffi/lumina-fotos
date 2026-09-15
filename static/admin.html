@@ -377,6 +377,20 @@
         }
 
         
+        
+        async function apagarEvento(id, nome) {
+            if(!confirm(Tem certeza que deseja apagar o evento '' permanentemente?)) return;
+            try {
+                const res = await fetch(/api/admin/evento/, { method: "DELETE", headers: { "Authorization": "Bearer " + adminToken }});
+                const data = await res.json();
+                if(data.sucesso) {
+                    carregarListaEventos();
+                } else {
+                    alert("Erro ao apagar evento.");
+                }
+            } catch(e) { alert(e); }
+        }
+
         async function apagarPedido(id) {
             if(!confirm("Tem certeza que deseja apagar este pedido permanentemente?")) return;
             try {

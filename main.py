@@ -438,3 +438,13 @@ def deletar_pedido_admin(pedido_id: str, authorization: str = Header(None)):
         return {"sucesso": True}
     except Exception as e:
         return {"sucesso": False, "erro": str(e)}
+
+
+@app.delete("/api/admin/evento/{evento_id}")
+def deletar_evento_admin(evento_id: str, authorization: str = Header(None)):
+    verificar_token_admin(authorization)
+    try:
+        supabase.table("eventos").delete().eq("id", evento_id).execute()
+        return {"sucesso": True}
+    except Exception as e:
+        return {"sucesso": False, "erro": str(e)}
